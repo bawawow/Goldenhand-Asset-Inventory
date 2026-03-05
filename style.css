@@ -13,28 +13,17 @@ h1, h3 {
 }
 
 /* Form Section */
-.form {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 900px;
-    margin: 0 auto 20px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
 .form input {
-    flex: 1;
-    min-width: 150px;
-}
-
+    margin: 5px 10px 10px 0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: calc(20% - 12px);
+    box-sizing: border-box;
+    /* Make Device Name / Hostname wider */
 #device {
-    flex: 2; /* device name field wider */
+    width: calc(40% - 12px);
+}
 }
 
 .form button {
@@ -191,6 +180,7 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
 
 
 
