@@ -17,7 +17,7 @@ h1, h3 {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto 20px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
@@ -185,3 +185,4 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
