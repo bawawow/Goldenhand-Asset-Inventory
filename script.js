@@ -1,14 +1,13 @@
-// Load existing assets from localStorage
+// Load assets from localStorage or empty array
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
-let editIndex = -1; // Track which asset is being edited
+let editIndex = -1; // track editing asset
 
-// Save assets to localStorage and refresh table
 function save() {
     localStorage.setItem("assets", JSON.stringify(assets));
     display();
 }
 
-// Add a new asset or update existing
+// Add or update asset
 function addAsset() {
     const id = document.getElementById("assetId").value.trim();
     const device = document.getElementById("device").value.trim();
@@ -24,7 +23,6 @@ function addAsset() {
     const asset = { id, device, brand, serial, user };
 
     if (editIndex > -1) {
-        // Update existing asset
         assets[editIndex] = asset;
         editIndex = -1;
         document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
@@ -36,7 +34,7 @@ function addAsset() {
     clearForm();
 }
 
-// Display all assets in table
+// Display table
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
@@ -101,7 +99,7 @@ function searchAsset() {
     });
 }
 
-// Export assets as CSV
+// Export CSV
 function exportCSV() {
     if (assets.length === 0) {
         alert("No assets to export.");
@@ -122,7 +120,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import PC info from your custom .txt file
+// Import PC info from messy .txt file
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -135,24 +133,23 @@ function importTxt() {
     const reader = new FileReader();
 
     reader.onload = function(e) {
-        const lines = e.target.result
-            .split(/\r?\n/)
-            .map(l => l.trim())
-            .filter(l => l !== "");
+        const lines = e.target.result.split(/\r?\n/).map(l => l.trim());
 
         let asset = { id: "", device: "", brand: "", serial: "", user: "" };
         let count = 0;
 
         lines.forEach(line => {
+            if (!line || line.startsWith("Computer Information") || line.startsWith("=")) return;
+
             if (line.toLowerCase().startsWith("hostname:")) {
                 asset.device = line.split(":")[1].trim();
-                asset.id = asset.device; // Use hostname as ID
+                asset.id = asset.device; // use hostname as ID
             } else if (line.toLowerCase().startsWith("serial number:")) {
-                const serial = line.split(":")[1].trim();
+                const serial = line.split(":")[1]?.trim();
                 if (serial) {
                     asset.serial = serial;
+                    // Save asset if we have both device and serial
                     if (asset.device && asset.serial) {
-                        // Update existing asset if same ID
                         const existingIndex = assets.findIndex(a => a.id === asset.id);
                         if (existingIndex > -1) {
                             assets[existingIndex] = { ...asset };
