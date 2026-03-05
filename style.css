@@ -27,7 +27,7 @@ h1, h3 {
     padding: 8px 12px;
     border-radius: 4px;
     border: 1px solid #ccc;
-    width: calc(20% - 12px);
+    width: calc(16% - 12px);
     box-sizing: border-box;
 }
 
@@ -185,3 +185,4 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
