@@ -24,8 +24,7 @@ h1, h3 {
 #device {
     width: calc(40% - 12px);
 }
-}
-
+    
 .form button {
     margin: 5px 5px 0 0;
     padding: 8px 16px;
@@ -180,6 +179,7 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
 
 
 
