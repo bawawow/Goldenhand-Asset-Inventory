@@ -23,7 +23,7 @@ h1, h3 {
 }
 
 /* Make Device Name / Hostname wider */
-#device {
+#Hostname {
     width: calc(40% - 12px);
 }
     
@@ -181,6 +181,7 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
 
 
 
