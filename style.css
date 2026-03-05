@@ -22,13 +22,19 @@ h1, h3 {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
+.form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .form input {
-    margin: 5px 10px 10px 0;
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    width: calc(20% - 12px);
-    box-sizing: border-box;
+    flex: 1;
+    min-width: 150px;
+}
+
+#device {
+    flex: 2; /* device name field wider */
 }
 
 .form button {
@@ -185,5 +191,6 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
 
 
