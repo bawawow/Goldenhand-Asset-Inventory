@@ -23,7 +23,7 @@ h1 {
 .form input {
     padding: 8px;
     margin: 5px;
-    width: calc(20% - 10px);
+    width: calc(20% - 10px); /* 5 fields now */
     border: 1px solid #ccc;
     border-radius: 5px;
 }
@@ -80,7 +80,7 @@ td button:hover {
     background-color: #d32f2f;
 }
 
-/* Highlight imported assets missing AssetID/Brand/User */
+/* Highlight imported assets missing AssetID/User */
 tr.imported {
-    background-color: #fff3cd; /* light yellow */
+    background-color: #fff3cd;
 }
