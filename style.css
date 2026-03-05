@@ -18,14 +18,10 @@ h1, h3 {
     padding: 8px 12px;
     border-radius: 4px;
     border: 1px solid #ccc;
-    width: calc(20% - 12px);
+    width: calc(22% - 12px);
     box-sizing: border-box;
 }
-
-.form input:nth-child(2) {
-    width: calc(24% - 12px);
-}
-    
+   
 .form button {
     margin: 5px 5px 0 0;
     padding: 8px 16px;
@@ -180,6 +176,7 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
 
 
 
