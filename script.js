@@ -43,7 +43,6 @@ function display() {
     assets.forEach((a, i) => {
         const row = document.createElement("tr");
 
-        // Highlight if AssetID or User is missing
         if (!a.id || !a.user) row.classList.add("imported");
 
         row.innerHTML = `
@@ -125,7 +124,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import PC info (.txt) with proper Model import
+// Import PC info (.txt) - single PC
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -157,9 +156,7 @@ function importTxt() {
             return;
         }
 
-        // Always push a new asset (do NOT check for existing)
-        assets.push({ ...asset });
-
+        assets.push({ ...asset }); // always add new
         save();
         fileInput.value = "";
         alert("Asset imported successfully! Highlighted row is missing AssetID/User.");
@@ -172,7 +169,58 @@ function importTxt() {
     reader.readAsText(file);
 }
 
+// Download PC Info Script
+document.getElementById("downloadScript").addEventListener("click", function(e) {
+    e.preventDefault();
+
+    const batContent = `@echo off
+REM ===========================
+REM Get PC Hostname, Serial Number, Model
+REM ===========================
+
+set output_file=pc_info.txt
+> "%output_file%" echo Computer Information
+>> "%output_file%" echo =====================
+>> "%output_file%" echo.
+
+REM Hostname
+echo Hostname: %COMPUTERNAME% >> "%output_file%"
+
+REM Serial Number
+for /f "skip=1 tokens=*" %%a in ('wmic bios get serialnumber') do (
+    set "sn=%%a"
+    if not defined sn goto :continue_serial
+    set sn=!sn: =!
+    goto :got_sn
+)
+:got_sn
+echo Serial Number: %sn% >> "%output_file%"
+:continue_serial
+
+REM Model
+for /f "skip=1 tokens=*" %%m in ('wmic computersystem get model') do (
+    set "model=%%m"
+    if not defined model goto :continue_model
+    set model=!model: =!
+    goto :got_model
+)
+:got_model
+echo Model: %model% >> "%output_file%"
+:continue_model
+
+echo.
+echo PC Info saved to %output_file%
+pause`;
+
+    const blob = new Blob([batContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "get_pc_info.bat";
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
 // Initial display
 display();
-
-
