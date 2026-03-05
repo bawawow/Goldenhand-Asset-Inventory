@@ -15,8 +15,8 @@ function addAsset() {
     const serial = document.getElementById("serial").value.trim();
     const user = document.getElementById("user").value.trim();
 
-    if (!id || !device || !brand || !serial || !user) {
-        alert("Please fill all fields.");
+    if (!id || !device || !serial) {
+        alert("Asset ID, Device, and Serial are required.");
         return;
     }
 
@@ -34,7 +34,7 @@ function addAsset() {
     clearForm();
 }
 
-// Display table
+// Display assets in table
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
@@ -56,7 +56,7 @@ function display() {
     });
 }
 
-// Edit asset
+// Edit asset (now allows editing Brand and User after import)
 function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
@@ -120,7 +120,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import PC info from messy .txt file
+// Import PC info from .txt file (supports your format)
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -131,10 +131,8 @@ function importTxt() {
     }
 
     const reader = new FileReader();
-
     reader.onload = function(e) {
         const lines = e.target.result.split(/\r?\n/).map(l => l.trim());
-
         let asset = { id: "", device: "", brand: "", serial: "", user: "" };
         let count = 0;
 
@@ -143,20 +141,20 @@ function importTxt() {
 
             if (line.toLowerCase().startsWith("hostname:")) {
                 asset.device = line.split(":")[1].trim();
-                asset.id = asset.device; // use hostname as ID
+                asset.id = asset.device;
             } else if (line.toLowerCase().startsWith("serial number:")) {
                 const serial = line.split(":")[1]?.trim();
                 if (serial) {
                     asset.serial = serial;
-                    // Save asset if we have both device and serial
                     if (asset.device && asset.serial) {
                         const existingIndex = assets.findIndex(a => a.id === asset.id);
                         if (existingIndex > -1) {
-                            assets[existingIndex] = { ...asset };
+                            assets[existingIndex] = { ...asset }; // update existing
                         } else {
-                            assets.push({ ...asset });
+                            assets.push({ ...asset }); // add new
                         }
                         count++;
+                        // Reset for next asset
                         asset = { id: "", device: "", brand: "", serial: "", user: "" };
                     }
                 }
@@ -165,7 +163,7 @@ function importTxt() {
 
         save();
         fileInput.value = "";
-        alert(`${count} assets imported successfully!`);
+        alert(`${count} assets imported successfully! You can now edit Brand and User.`);
     };
 
     reader.onerror = function() {
