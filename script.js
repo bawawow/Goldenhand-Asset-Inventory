@@ -1,88 +1,128 @@
+// Load assets from localStorage or start empty
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
+let editIndex = -1; // Track editing row
 
-function save(){
-localStorage.setItem("assets", JSON.stringify(assets));
-display();
+function save() {
+    localStorage.setItem("assets", JSON.stringify(assets));
+    display();
 }
 
-function addAsset(){
+// Add or update asset
+function addAsset() {
+    const id = document.getElementById("assetId").value.trim();
+    const device = document.getElementById("device").value.trim();
+    const brand = document.getElementById("brand").value.trim();
+    const serial = document.getElementById("serial").value.trim();
+    const user = document.getElementById("user").value.trim();
 
-let asset = {
-id: document.getElementById("assetId").value,
-device: document.getElementById("device").value,
-brand: document.getElementById("brand").value,
-serial: document.getElementById("serial").value,
-user: document.getElementById("user").value
-};
+    if (!id || !device || !brand || !serial || !user) {
+        alert("Please fill all fields.");
+        return;
+    }
 
-assets.push(asset);
-save();
-clearForm();
+    const asset = { id, device, brand, serial, user };
+
+    if (editIndex > -1) {
+        // Update existing asset
+        assets[editIndex] = asset;
+        editIndex = -1;
+        document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
+    } else {
+        // Add new asset
+        assets.push(asset);
+    }
+
+    save();
+    clearForm();
 }
 
-function display(){
+// Display assets in table
+function display() {
+    const table = document.querySelector("#assetTable tbody");
+    table.innerHTML = "";
 
-let table = document.querySelector("#assetTable tbody");
-table.innerHTML="";
+    assets.forEach((a, i) => {
+        const row = document.createElement("tr");
 
-assets.forEach((a,i)=>{
+        row.innerHTML = `
+            <td>${a.id}</td>
+            <td>${a.device}</td>
+            <td>${a.brand}</td>
+            <td>${a.serial}</td>
+            <td>${a.user}</td>
+            <td>
+                <button onclick="editAsset(${i})">Edit</button>
+                <button onclick="deleteAsset(${i})">Delete</button>
+            </td>
+        `;
 
-let row = `
-<tr>
-<td>${a.id}</td>
-<td>${a.device}</td>
-<td>${a.brand}</td>
-<td>${a.serial}</td>
-<td>${a.user}</td>
-<td><button onclick="deleteAsset(${i})">Delete</button></td>
-</tr>
-`;
-
-table.innerHTML += row;
-
-});
+        table.appendChild(row);
+    });
 }
 
-function deleteAsset(i){
-assets.splice(i,1);
-save();
+// Delete asset
+function deleteAsset(i) {
+    if (confirm("Are you sure you want to delete this asset?")) {
+        assets.splice(i, 1);
+        save();
+    }
 }
 
-function clearForm(){
-document.getElementById("assetId").value="";
-document.getElementById("device").value="";
-document.getElementById("brand").value="";
-document.getElementById("serial").value="";
-document.getElementById("user").value="";
+// Edit asset
+function editAsset(i) {
+    const a = assets[i];
+    document.getElementById("assetId").value = a.id;
+    document.getElementById("device").value = a.device;
+    document.getElementById("brand").value = a.brand;
+    document.getElementById("serial").value = a.serial;
+    document.getElementById("user").value = a.user;
+
+    editIndex = i;
+    document.querySelector("button[onclick='addAsset()']").innerText = "Update Asset";
 }
 
-function searchAsset(){
+// Clear form
+function clearForm() {
+    document.getElementById("assetId").value = "";
+    document.getElementById("device").value = "";
+    document.getElementById("brand").value = "";
+    document.getElementById("serial").value = "";
+    document.getElementById("user").value = "";
 
-let filter = document.getElementById("search").value.toLowerCase();
-let rows = document.querySelectorAll("#assetTable tbody tr");
-
-rows.forEach(row=>{
-row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
-});
-
+    editIndex = -1;
+    document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
 }
 
-function exportCSV(){
+// Search asset
+function searchAsset() {
+    const filter = document.getElementById("search").value.toLowerCase();
+    const rows = document.querySelectorAll("#assetTable tbody tr");
 
-let csv = "AssetID,Device,Brand,Serial,User\n";
-
-assets.forEach(a=>{
-csv += `${a.id},${a.device},${a.brand},${a.serial},${a.user}\n`;
-});
-
-let blob = new Blob([csv]);
-let url = URL.createObjectURL(blob);
-
-let a = document.createElement("a");
-a.href=url;
-a.download="assets.csv";
-a.click();
-
+    rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
+    });
 }
 
+// Export CSV
+function exportCSV() {
+    if (assets.length === 0) {
+        alert("No assets to export.");
+        return;
+    }
+
+    let csv = "AssetID,Device,Brand,Serial,User\n";
+    assets.forEach(a => {
+        csv += `${a.id},${a.device},${a.brand},${a.serial},${a.user}\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "assets.csv";
+    a.click();
+}
+
+// Initial display
 display();
