@@ -124,5 +124,35 @@ function exportCSV() {
     a.click();
 }
 
+// Import TXT file
+function importTxt() {
+    const fileInput = document.getElementById("importFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a .txt file.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const lines = e.target.result.split(/\r?\n/); // Split by line
+        lines.forEach(line => {
+            const [id, device, brand, serial, user] = line.split(",");
+            if (id && device && brand && serial && user) {
+                // Avoid duplicates: optional
+                const exists = assets.some(a => a.id === id);
+                if (!exists) {
+                    assets.push({ id: id.trim(), device: device.trim(), brand: brand.trim(), serial: serial.trim(), user: user.trim() });
+                }
+            }
+        });
+        save();
+        fileInput.value = ""; // Reset file input
+        alert("Import completed!");
+    };
+    reader.readAsText(file);
+}
+
 // Initial display
 display();
