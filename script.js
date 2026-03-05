@@ -11,13 +11,27 @@ function checkLogin() {
     const password = document.getElementById("loginPassword").value.trim();
 
     if(username === USERNAME && password === LOGIN_PASSWORD){
-        document.getElementById("loginOverlay").style.display = "none";
+        // Fade out overlay
+        const overlay = document.getElementById("loginOverlay");
+        overlay.classList.add("fade-out");
+        setTimeout(() => overlay.style.display = "none", 500);
+        document.getElementById("loginError").style.display = "none";
     } else {
         document.getElementById("loginError").style.display = "block";
     }
 }
 
-// Check password for sensitive actions (modification)
+// Enter key support
+document.getElementById("loginPassword").addEventListener("keypress", e => { if(e.key === "Enter") checkLogin(); });
+document.getElementById("loginUsername").addEventListener("keypress", e => { if(e.key === "Enter") checkLogin(); });
+
+// ============================
+// Asset Inventory System
+// ============================
+let assets = JSON.parse(localStorage.getItem("assets")) || [];
+let editIndex = -1;
+
+// Check password for sensitive actions
 function checkPassword() {
     const input = prompt("Enter modification password:");
     if(input !== MOD_PASSWORD){
@@ -27,19 +41,13 @@ function checkPassword() {
     return true;
 }
 
-// ============================
-// Asset Inventory System
-// ============================
-let assets = JSON.parse(localStorage.getItem("assets")) || [];
-let editIndex = -1;
-
-// Save assets to localStorage and update display
+// Save assets
 function save() {
     localStorage.setItem("assets", JSON.stringify(assets));
     display();
 }
 
-// Add or Update Asset
+// Add / Update Asset
 function addAsset() {
     if(!checkPassword()) return;
 
@@ -49,10 +57,7 @@ function addAsset() {
     const serial = document.getElementById("serial").value.trim();
     const user = document.getElementById("user").value.trim();
 
-    if(!device || !serial) { 
-        alert("Device and Serial are required."); 
-        return; 
-    }
+    if(!device || !serial) { alert("Device and Serial are required."); return; }
 
     const asset = { id, device, model, serial, user };
 
@@ -80,15 +85,10 @@ function deleteAsset(i) {
 // Export CSV
 function exportCSV(){
     if(!checkPassword()) return;
-    if(assets.length === 0){ 
-        alert("No assets to export."); 
-        return; 
-    }
+    if(assets.length === 0){ alert("No assets to export."); return; }
 
     let csv = "AssetID,Device,Model,Serial,User\n";
-    assets.forEach(a => { 
-        csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`; 
-    });
+    assets.forEach(a => { csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`; });
 
     const blob = new Blob([csv], { type:"text/csv" });
     const url = URL.createObjectURL(blob);
@@ -98,7 +98,7 @@ function exportCSV(){
     a.click();
 }
 
-// Display assets in table
+// Display assets
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
@@ -131,7 +131,7 @@ function editAsset(i) {
     document.querySelector("button[onclick='addAsset()']").innerText = "Update Asset";
 }
 
-// Clear form fields
+// Clear form
 function clearForm() {
     document.getElementById("assetId").value="";
     document.getElementById("device").value="";
