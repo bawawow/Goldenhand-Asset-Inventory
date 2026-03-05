@@ -1,7 +1,8 @@
-// Load assets from localStorage or empty array
+// Load assets from localStorage
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
-let editIndex = -1; // track editing asset
+let editIndex = -1;
 
+// Save to localStorage
 function save() {
     localStorage.setItem("assets", JSON.stringify(assets));
     display();
@@ -11,7 +12,7 @@ function save() {
 function addAsset() {
     const id = document.getElementById("assetId").value.trim();
     const device = document.getElementById("device").value.trim();
-    const brand = document.getElementById("brand").value.trim();
+    const model = document.getElementById("model").value.trim();
     const serial = document.getElementById("serial").value.trim();
     const user = document.getElementById("user").value.trim();
 
@@ -20,7 +21,7 @@ function addAsset() {
         return;
     }
 
-    const asset = { id, device, brand, serial, user };
+    const asset = { id, device, model, serial, user };
 
     if (editIndex > -1) {
         assets[editIndex] = asset;
@@ -42,13 +43,13 @@ function display() {
     assets.forEach((a, i) => {
         const row = document.createElement("tr");
 
-        // Highlight row if AssetID, Brand, or User is missing
-        if (!a.id || !a.brand || !a.user) row.classList.add("imported");
+        // Highlight if AssetID or User missing
+        if (!a.id || !a.user) row.classList.add("imported");
 
         row.innerHTML = `
             <td>${a.id}</td>
             <td>${a.device}</td>
-            <td>${a.brand}</td>
+            <td>${a.model}</td>
             <td>${a.serial}</td>
             <td>${a.user}</td>
             <td>
@@ -65,7 +66,7 @@ function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
     document.getElementById("device").value = a.device;
-    document.getElementById("brand").value = a.brand;
+    document.getElementById("model").value = a.model;
     document.getElementById("serial").value = a.serial;
     document.getElementById("user").value = a.user;
 
@@ -85,7 +86,7 @@ function deleteAsset(i) {
 function clearForm() {
     document.getElementById("assetId").value = "";
     document.getElementById("device").value = "";
-    document.getElementById("brand").value = "";
+    document.getElementById("model").value = "";
     document.getElementById("serial").value = "";
     document.getElementById("user").value = "";
 
@@ -110,9 +111,9 @@ function exportCSV() {
         return;
     }
 
-    let csv = "AssetID,Device,Brand,Serial,User\n";
+    let csv = "AssetID,Device,Model,Serial,User\n";
     assets.forEach(a => {
-        csv += `${a.id},${a.device},${a.brand},${a.serial},${a.user}\n`;
+        csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`;
     });
 
     const blob = new Blob([csv], { type: "text/csv" });
@@ -124,7 +125,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import PC info from .txt file (Asset ID left blank)
+// Import PC info (.txt) with Model
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -137,7 +138,7 @@ function importTxt() {
     const reader = new FileReader();
     reader.onload = function(e) {
         const lines = e.target.result.split(/\r?\n/).map(l => l.trim());
-        let asset = { id: "", device: "", brand: "", serial: "", user: "" };
+        let asset = { id: "", device: "", model: "", serial: "", user: "" };
         let count = 0;
 
         lines.forEach(line => {
@@ -146,27 +147,27 @@ function importTxt() {
             if (line.toLowerCase().startsWith("hostname:")) {
                 asset.device = line.split(":")[1].trim();
             } else if (line.toLowerCase().startsWith("serial number:")) {
-                const serial = line.split(":")[1]?.trim();
-                if (serial) {
-                    asset.serial = serial;
-                    if (asset.device && asset.serial) {
-                        // Check if device+serial already exists
-                        const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
-                        if (existingIndex > -1) {
-                            assets[existingIndex] = { ...asset }; // update
-                        } else {
-                            assets.push({ ...asset }); // add new
-                        }
-                        count++;
-                        asset = { id: "", device: "", brand: "", serial: "", user: "" };
-                    }
+                asset.serial = line.split(":")[1]?.trim();
+            } else if (line.toLowerCase().startsWith("model:")) {
+                asset.model = line.split(":")[1]?.trim();
+            }
+
+            if (asset.device && asset.serial) {
+                // Check if device+serial already exists
+                const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
+                if (existingIndex > -1) {
+                    assets[existingIndex] = { ...asset };
+                } else {
+                    assets.push({ ...asset });
                 }
+                count++;
+                asset = { id: "", device: "", model: "", serial: "", user: "" };
             }
         });
 
         save();
         fileInput.value = "";
-        alert(`${count} assets imported successfully! Highlighted rows are missing AssetID/Brand/User.`);
+        alert(`${count} assets imported successfully! Highlighted rows are missing AssetID/User.`);
     };
 
     reader.onerror = function() {
