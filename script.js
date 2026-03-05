@@ -1,12 +1,14 @@
+// Load existing assets from localStorage
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
-let editIndex = -1; // Track editing asset
+let editIndex = -1; // Track which asset is being edited
 
+// Save assets to localStorage and refresh table
 function save() {
     localStorage.setItem("assets", JSON.stringify(assets));
     display();
 }
 
-// Add or update asset
+// Add a new asset or update existing
 function addAsset() {
     const id = document.getElementById("assetId").value.trim();
     const device = document.getElementById("device").value.trim();
@@ -22,6 +24,7 @@ function addAsset() {
     const asset = { id, device, brand, serial, user };
 
     if (editIndex > -1) {
+        // Update existing asset
         assets[editIndex] = asset;
         editIndex = -1;
         document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
@@ -33,7 +36,7 @@ function addAsset() {
     clearForm();
 }
 
-// Display assets
+// Display all assets in table
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
@@ -88,7 +91,7 @@ function clearForm() {
     document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
 }
 
-// Search asset
+// Search assets
 function searchAsset() {
     const filter = document.getElementById("search").value.toLowerCase();
     const rows = document.querySelectorAll("#assetTable tbody tr");
@@ -98,7 +101,7 @@ function searchAsset() {
     });
 }
 
-// Export CSV
+// Export assets as CSV
 function exportCSV() {
     if (assets.length === 0) {
         alert("No assets to export.");
@@ -119,7 +122,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import TXT
+// Import PC info from your custom .txt file
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -130,43 +133,38 @@ function importTxt() {
     }
 
     const reader = new FileReader();
+
     reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+        const lines = e.target.result
+            .split(/\r?\n/)
+            .map(l => l.trim())
+            .filter(l => l !== "");
 
-        if (lines.length === 0) {
-            alert("File is empty or invalid.");
-            return;
-        }
-
-        // Skip header if detected
-        let startIndex = 0;
-        if (lines[0].toLowerCase().includes("asset") && lines[0].toLowerCase().includes("device")) {
-            startIndex = 1;
-        }
-
+        let asset = { id: "", device: "", brand: "", serial: "", user: "" };
         let count = 0;
-        for (let i = startIndex; i < lines.length; i++) {
-            const [id, device, brand, serial, user] = lines[i].split(",");
-            if (id && device && brand && serial && user) {
-                const trimmedAsset = {
-                    id: id.trim(),
-                    device: device.trim(),
-                    brand: brand.trim(),
-                    serial: serial.trim(),
-                    user: user.trim()
-                };
 
-                // Update if exists, else add
-                const existingIndex = assets.findIndex(a => a.id === trimmedAsset.id);
-                if (existingIndex > -1) {
-                    assets[existingIndex] = trimmedAsset;
-                } else {
-                    assets.push(trimmedAsset);
+        lines.forEach(line => {
+            if (line.toLowerCase().startsWith("hostname:")) {
+                asset.device = line.split(":")[1].trim();
+                asset.id = asset.device; // Use hostname as ID
+            } else if (line.toLowerCase().startsWith("serial number:")) {
+                const serial = line.split(":")[1].trim();
+                if (serial) {
+                    asset.serial = serial;
+                    if (asset.device && asset.serial) {
+                        // Update existing asset if same ID
+                        const existingIndex = assets.findIndex(a => a.id === asset.id);
+                        if (existingIndex > -1) {
+                            assets[existingIndex] = { ...asset };
+                        } else {
+                            assets.push({ ...asset });
+                        }
+                        count++;
+                        asset = { id: "", device: "", brand: "", serial: "", user: "" };
+                    }
                 }
-                count++;
             }
-        }
+        });
 
         save();
         fileInput.value = "";
@@ -180,5 +178,5 @@ function importTxt() {
     reader.readAsText(file);
 }
 
-// Initialize table
+// Initial display
 display();
