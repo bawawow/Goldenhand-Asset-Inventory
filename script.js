@@ -1,14 +1,11 @@
-// Load assets from localStorage
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
 let editIndex = -1;
 
-// Save to localStorage and refresh table
 function save() {
     localStorage.setItem("assets", JSON.stringify(assets));
     display();
 }
 
-// Add or update asset
 function addAsset() {
     const id = document.getElementById("assetId").value.trim();
     const device = document.getElementById("device").value.trim();
@@ -16,10 +13,7 @@ function addAsset() {
     const serial = document.getElementById("serial").value.trim();
     const user = document.getElementById("user").value.trim();
 
-    if (!device || !serial) {
-        alert("Device and Serial Number are required.");
-        return;
-    }
+    if (!device || !serial) { alert("Device and Serial Number are required."); return; }
 
     const asset = { id, device, model, serial, user };
 
@@ -27,24 +21,18 @@ function addAsset() {
         assets[editIndex] = asset;
         editIndex = -1;
         document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
-    } else {
-        assets.push(asset);
-    }
+    } else { assets.push(asset); }
 
     save();
     clearForm();
 }
 
-// Display assets in table
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
-
     assets.forEach((a, i) => {
         const row = document.createElement("tr");
-
         if (!a.id || !a.user) row.classList.add("imported");
-
         row.innerHTML = `
             <td>${a.id}</td>
             <td>${a.device}</td>
@@ -54,13 +42,11 @@ function display() {
             <td>
                 <button onclick="editAsset(${i})">Edit</button>
                 <button onclick="deleteAsset(${i})">Delete</button>
-            </td>
-        `;
+            </td>`;
         table.appendChild(row);
     });
 }
 
-// Edit existing asset
 function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
@@ -68,12 +54,10 @@ function editAsset(i) {
     document.getElementById("model").value = a.model;
     document.getElementById("serial").value = a.serial;
     document.getElementById("user").value = a.user;
-
     editIndex = i;
     document.querySelector("button[onclick='addAsset()']").innerText = "Update Asset";
 }
 
-// Delete asset
 function deleteAsset(i) {
     if (confirm("Are you sure you want to delete this asset?")) {
         assets.splice(i, 1);
@@ -81,58 +65,40 @@ function deleteAsset(i) {
     }
 }
 
-// Clear form
 function clearForm() {
     document.getElementById("assetId").value = "";
     document.getElementById("device").value = "";
     document.getElementById("model").value = "";
     document.getElementById("serial").value = "";
     document.getElementById("user").value = "";
-
     editIndex = -1;
     document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
 }
 
-// Search assets
 function searchAsset() {
     const filter = document.getElementById("search").value.toLowerCase();
     const rows = document.querySelectorAll("#assetTable tbody tr");
-
     rows.forEach(row => {
         row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
     });
 }
 
-// Export CSV
 function exportCSV() {
-    if (assets.length === 0) {
-        alert("No assets to export.");
-        return;
-    }
-
+    if (assets.length === 0) { alert("No assets to export."); return; }
     let csv = "AssetID,Device,Model,Serial,User\n";
-    assets.forEach(a => {
-        csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`;
-    });
-
+    assets.forEach(a => { csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`; });
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = "assets.csv";
     a.click();
 }
 
-// Import PC info (.txt) - single PC
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
-
-    if (!file) {
-        alert("Please select a .txt file.");
-        return;
-    }
+    if (!file) { alert("Please select a .txt file."); return; }
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -141,72 +107,58 @@ function importTxt() {
 
         lines.forEach(line => {
             if (!line || line.startsWith("Computer Information") || line.startsWith("=")) return;
-
-            if (line.toLowerCase().startsWith("hostname:")) {
-                asset.device = line.split(":")[1]?.trim();
-            } else if (line.toLowerCase().startsWith("serial number:")) {
-                asset.serial = line.split(":")[1]?.trim();
-            } else if (line.toLowerCase().startsWith("model:")) {
-                asset.model = line.split(":")[1]?.trim();
-            }
+            if (line.toLowerCase().startsWith("hostname:")) asset.device = line.split(":")[1]?.trim();
+            else if (line.toLowerCase().startsWith("serial number:")) asset.serial = line.split(":")[1]?.trim();
+            else if (line.toLowerCase().startsWith("model:")) asset.model = line.split(":")[1]?.trim();
         });
 
-        if (!asset.device || !asset.serial) {
-            alert("Invalid file: missing Hostname or Serial Number.");
-            return;
-        }
-
-        assets.push({ ...asset }); // always add new
+        if (!asset.device || !asset.serial) { alert("Invalid file: missing Hostname or Serial Number."); return; }
+        assets.push({ ...asset });
         save();
         fileInput.value = "";
         alert("Asset imported successfully! Highlighted row is missing AssetID/User.");
     };
 
-    reader.onerror = function() {
-        alert("Error reading file.");
-    };
-
+    reader.onerror = function() { alert("Error reading file."); };
     reader.readAsText(file);
 }
 
-// Download PC Info Script
+// Download updated PC info script
 document.getElementById("downloadScript").addEventListener("click", function(e) {
     e.preventDefault();
-
     const batContent = `@echo off
 REM ===========================
 REM Get PC Hostname, Serial Number, Model
 REM ===========================
 
+REM Output file
 set output_file=pc_info.txt
+
+REM Clear previous file
 > "%output_file%" echo Computer Information
 >> "%output_file%" echo =====================
 >> "%output_file%" echo.
 
-REM Hostname
+REM Get Hostname
 echo Hostname: %COMPUTERNAME% >> "%output_file%"
 
-REM Serial Number
-for /f "skip=1 tokens=*" %%a in ('wmic bios get serialnumber') do (
-    set "sn=%%a"
-    if not defined sn goto :continue_serial
-    set sn=!sn: =!
+REM Get Serial Number using WMIC
+for /f "skip=1 delims=" %%a in ('wmic bios get serialnumber') do (
+    set sn=%%a
     goto :got_sn
 )
 :got_sn
+set sn=%sn: =%
 echo Serial Number: %sn% >> "%output_file%"
-:continue_serial
 
-REM Model
-for /f "skip=1 tokens=*" %%m in ('wmic computersystem get model') do (
-    set "model=%%m"
-    if not defined model goto :continue_model
-    set model=!model: =!
+REM Get Model using WMIC
+for /f "skip=1 delims=" %%m in ('wmic computersystem get model') do (
+    set model=%%m
     goto :got_model
 )
 :got_model
+set model=%model: =%
 echo Model: %model% >> "%output_file%"
-:continue_model
 
 echo.
 echo PC Info saved to %output_file%
@@ -214,7 +166,6 @@ pause`;
 
     const blob = new Blob([batContent], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = "get_pc_info.bat";
@@ -222,5 +173,4 @@ pause`;
     URL.revokeObjectURL(url);
 });
 
-// Initial display
 display();
