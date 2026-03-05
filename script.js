@@ -1,13 +1,14 @@
 // Load assets from localStorage or start empty
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
-let editIndex = -1; // Track editing row
+let editIndex = -1; // Track which asset is being edited
 
+// Save assets to localStorage and refresh table
 function save() {
     localStorage.setItem("assets", JSON.stringify(assets));
     display();
 }
 
-// Add or update asset
+// Add new asset or update existing one
 function addAsset() {
     const id = document.getElementById("assetId").value.trim();
     const device = document.getElementById("device").value.trim();
@@ -36,14 +37,13 @@ function addAsset() {
     clearForm();
 }
 
-// Display assets in table
+// Display all assets in table
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
 
     assets.forEach((a, i) => {
         const row = document.createElement("tr");
-
         row.innerHTML = `
             <td>${a.id}</td>
             <td>${a.device}</td>
@@ -55,12 +55,11 @@ function display() {
                 <button onclick="deleteAsset(${i})">Delete</button>
             </td>
         `;
-
         table.appendChild(row);
     });
 }
 
-// Delete asset
+// Delete asset by index
 function deleteAsset(i) {
     if (confirm("Are you sure you want to delete this asset?")) {
         assets.splice(i, 1);
@@ -68,7 +67,7 @@ function deleteAsset(i) {
     }
 }
 
-// Edit asset
+// Edit asset by index
 function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
@@ -81,7 +80,7 @@ function editAsset(i) {
     document.querySelector("button[onclick='addAsset()']").innerText = "Update Asset";
 }
 
-// Clear form
+// Clear form inputs
 function clearForm() {
     document.getElementById("assetId").value = "";
     document.getElementById("device").value = "";
@@ -93,7 +92,7 @@ function clearForm() {
     document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
 }
 
-// Search asset
+// Search assets in table
 function searchAsset() {
     const filter = document.getElementById("search").value.toLowerCase();
     const rows = document.querySelectorAll("#assetTable tbody tr");
@@ -103,7 +102,7 @@ function searchAsset() {
     });
 }
 
-// Export CSV
+// Export assets as CSV
 function exportCSV() {
     if (assets.length === 0) {
         alert("No assets to export.");
@@ -124,7 +123,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import TXT file
+// Import assets from .txt file (comma-separated, optional header)
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -136,21 +135,53 @@ function importTxt() {
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        const lines = e.target.result.split(/\r?\n/); // Split by line
-        lines.forEach(line => {
-            const [id, device, brand, serial, user] = line.split(",");
+        const text = e.target.result;
+        const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+
+        if (lines.length === 0) {
+            alert("File is empty or invalid.");
+            return;
+        }
+
+        // Skip header if present
+        let startIndex = 0;
+        const firstLine = lines[0].toLowerCase();
+        if (firstLine.includes("asset") && firstLine.includes("device")) {
+            startIndex = 1;
+        }
+
+        let count = 0;
+        for (let i = startIndex; i < lines.length; i++) {
+            const [id, device, brand, serial, user] = lines[i].split(",");
             if (id && device && brand && serial && user) {
-                // Avoid duplicates: optional
-                const exists = assets.some(a => a.id === id);
-                if (!exists) {
-                    assets.push({ id: id.trim(), device: device.trim(), brand: brand.trim(), serial: serial.trim(), user: user.trim() });
+                const trimmedAsset = {
+                    id: id.trim(),
+                    device: device.trim(),
+                    brand: brand.trim(),
+                    serial: serial.trim(),
+                    user: user.trim()
+                };
+
+                // Optional: update existing asset if ID exists
+                const existingIndex = assets.findIndex(a => a.id === trimmedAsset.id);
+                if (existingIndex > -1) {
+                    assets[existingIndex] = trimmedAsset; // update
+                } else {
+                    assets.push(trimmedAsset); // add new
                 }
+                count++;
             }
-        });
+        }
+
         save();
-        fileInput.value = ""; // Reset file input
-        alert("Import completed!");
+        fileInput.value = ""; // reset file input
+        alert(`${count} assets imported successfully!`);
     };
+
+    reader.onerror = function() {
+        alert("Error reading file.");
+    };
+
     reader.readAsText(file);
 }
 
