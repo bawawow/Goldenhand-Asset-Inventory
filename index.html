@@ -8,13 +8,13 @@
 
 <h1>Asset Inventory System</h1>
 
-<div class="form">
+<div class="form-card">
     <input type="text" id="assetId" placeholder="Asset ID">
     <input type="text" id="device" placeholder="Device Name / Hostname">
     <input type="text" id="model" placeholder="Model">
     <input type="text" id="serial" placeholder="Serial Number">
     <input type="text" id="user" placeholder="Assigned To">
-    <br><br>
+    <br>
     <button onclick="addAsset()">Add Asset</button>
     <button onclick="exportCSV()">Export CSV</button>
 </div>
@@ -44,16 +44,6 @@
 <h3>Download PC Info Script</h3>
 <div class="download-section">
     <a id="downloadScript" href="#">Download Script</a>
-</div>
-
-<!-- Password Modal -->
-<div id="passwordModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <h3>Enter Password</h3>
-    <input type="password" id="modalPassword" placeholder="Password">
-    <button onclick="submitPassword()">Submit</button>
-  </div>
 </div>
 
 <script src="script.js"></script>
