@@ -1,93 +1,135 @@
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f8;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
     margin: 0;
     padding: 20px;
+    color: #333;
+}
+
+h1, h3 {
     text-align: center;
-}
-
-h1 {
     color: #2c3e50;
-    margin-bottom: 20px;
 }
 
-.form-card {
+/* Form Section */
+.form {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
-    display: inline-block;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+    max-width: 900px;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.form-card input {
-    padding: 8px;
-    margin: 5px;
+.form input {
+    margin: 5px 10px 10px 0;
+    padding: 8px 12px;
     border-radius: 4px;
     border: 1px solid #ccc;
+    width: calc(20% - 12px);
+    box-sizing: border-box;
 }
 
-.form-card button {
-    padding: 10px 16px;
-    margin: 10px 5px 0 5px;
+.form button {
+    margin: 5px 5px 0 0;
+    padding: 8px 16px;
     border: none;
     border-radius: 4px;
     background-color: #3498db;
     color: #fff;
     cursor: pointer;
+    transition: background 0.3s;
 }
 
-.form-card button:hover {
+.form button:hover {
     background-color: #2980b9;
 }
 
+/* Import section */
 .import-section {
+    text-align: center;
     margin-bottom: 20px;
 }
 
-#importFile {
-    margin-right: 10px;
-}
-
+/* Search box */
 #search {
-    width: 50%;
-    padding: 8px;
-    margin: 10px 0 20px 0;
+    width: 95%;
+    max-width: 900px;
+    display: block;
+    margin: 0 auto 20px;
+    padding: 8px 12px;
     border-radius: 4px;
     border: 1px solid #ccc;
 }
 
+/* Table Styles */
 table {
-    width: 90%;
-    margin: 0 auto 30px auto;
+    width: 95%;
+    max-width: 900px;
+    margin: 0 auto;
     border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }
 
-table th, table td {
-    padding: 10px;
-    border: 1px solid #ddd;
+th, td {
+    padding: 10px 12px;
     text-align: left;
+    border-bottom: 1px solid #e0e0e0;
 }
 
-table th {
+th {
     background-color: #3498db;
-    color: white;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.download-section a {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #2ecc71;
     color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    margin-top: 10px;
 }
 
-.download-section a:hover {
-    background-color: #27ae60;
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr.imported {
+    background-color: #fff3cd !important;
+}
+
+tr:hover {
+    background-color: #d6eaf8 !important;
+}
+
+button {
+    font-size: 0.9em;
+}
+
+/* Download link */
+.download-section {
+    text-align: center;
+    margin: 20px 0;
+}
+
+a#downloadScript {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #2ecc71;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+a#downloadScript:hover {
+    background: #27ae60;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form input {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    #search, table {
+        width: 100%;
+    }
 }
