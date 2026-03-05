@@ -52,14 +52,14 @@ function addAsset() {
     if(!checkPassword()) return;
 
     const id = document.getElementById("assetId").value.trim();
-    const device = document.getElementById("device").value.trim();
+    const hostname = document.getElementById("hostname").value.trim();
     const model = document.getElementById("model").value.trim();
     const serial = document.getElementById("serial").value.trim();
     const user = document.getElementById("user").value.trim();
 
-    if(!device || !serial) { alert("Device and Serial are required."); return; }
+    if(!hostname || !serial) { alert("Hostname and Serial are required."); return; }
 
-    const asset = { id, device, model, serial, user };
+    const asset = { id, hostname, model, serial, user };
 
     if(editIndex > -1){
         assets[editIndex] = asset;
@@ -87,8 +87,8 @@ function exportCSV(){
     if(!checkPassword()) return;
     if(assets.length === 0){ alert("No assets to export."); return; }
 
-    let csv = "AssetID,Device,Model,Serial,User\n";
-    assets.forEach(a => { csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`; });
+    let csv = "AssetID,Hostname,Model,Serial,User\n";
+    assets.forEach(a => { csv += `${a.id},${a.hostname},${a.model},${a.serial},${a.user}\n`; });
 
     const blob = new Blob([csv], { type:"text/csv" });
     const url = URL.createObjectURL(blob);
@@ -107,7 +107,7 @@ function display() {
         if(!a.id || !a.user) row.classList.add("imported");
         row.innerHTML = `
             <td>${a.id}</td>
-            <td>${a.device}</td>
+            <td>${a.hostname}</td>
             <td>${a.model}</td>
             <td>${a.serial}</td>
             <td>${a.user}</td>
@@ -123,7 +123,7 @@ function display() {
 function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
-    document.getElementById("device").value = a.device;
+    document.getElementById("hostname").value = a.hostname;
     document.getElementById("model").value = a.model;
     document.getElementById("serial").value = a.serial;
     document.getElementById("user").value = a.user;
@@ -134,7 +134,7 @@ function editAsset(i) {
 // Clear form
 function clearForm() {
     document.getElementById("assetId").value="";
-    document.getElementById("device").value="";
+    document.getElementById("hostname").value="";
     document.getElementById("model").value="";
     document.getElementById("serial").value="";
     document.getElementById("user").value="";
@@ -158,14 +158,14 @@ function importTxt() {
     const reader = new FileReader();
     reader.onload = function(e){
         const lines = e.target.result.split(/\r?\n/).map(l=>l.trim());
-        let asset = {id:"",device:"",model:"",serial:"",user:""};
+        let asset = {id:"",hostname:"",model:"",serial:"",user:""};
         lines.forEach(line=>{
             if(!line || line.startsWith("Computer Information") || line.startsWith("=")) return;
-            if(line.toLowerCase().startsWith("hostname:")) asset.device=line.split(":")[1]?.trim();
+            if(line.toLowerCase().startsWith("hostname:")) asset.hostname=line.split(":")[1]?.trim();
             else if(line.toLowerCase().startsWith("serial number:")) asset.serial=line.split(":")[1]?.trim();
             else if(line.toLowerCase().startsWith("model:")) asset.model=line.split(":")[1]?.trim();
         });
-        if(!asset.device || !asset.serial){ alert("Invalid file: missing Hostname or Serial Number."); return; }
+        if(!asset.hostname || !asset.serial){ alert("Invalid file: missing Hostname or Serial Number."); return; }
         assets.push({...asset});
         save();
         fileInput.value="";
@@ -227,3 +227,4 @@ pause`;
 
 // Display initial assets
 display();
+
