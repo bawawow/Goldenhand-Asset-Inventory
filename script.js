@@ -1,14 +1,12 @@
-// Load assets from localStorage or start empty
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
-let editIndex = -1; // Track which asset is being edited
+let editIndex = -1; // Track editing asset
 
-// Save assets to localStorage and refresh table
 function save() {
     localStorage.setItem("assets", JSON.stringify(assets));
     display();
 }
 
-// Add new asset or update existing one
+// Add or update asset
 function addAsset() {
     const id = document.getElementById("assetId").value.trim();
     const device = document.getElementById("device").value.trim();
@@ -24,12 +22,10 @@ function addAsset() {
     const asset = { id, device, brand, serial, user };
 
     if (editIndex > -1) {
-        // Update existing asset
         assets[editIndex] = asset;
         editIndex = -1;
         document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
     } else {
-        // Add new asset
         assets.push(asset);
     }
 
@@ -37,7 +33,7 @@ function addAsset() {
     clearForm();
 }
 
-// Display all assets in table
+// Display assets
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
@@ -59,15 +55,7 @@ function display() {
     });
 }
 
-// Delete asset by index
-function deleteAsset(i) {
-    if (confirm("Are you sure you want to delete this asset?")) {
-        assets.splice(i, 1);
-        save();
-    }
-}
-
-// Edit asset by index
+// Edit asset
 function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
@@ -80,7 +68,15 @@ function editAsset(i) {
     document.querySelector("button[onclick='addAsset()']").innerText = "Update Asset";
 }
 
-// Clear form inputs
+// Delete asset
+function deleteAsset(i) {
+    if (confirm("Are you sure you want to delete this asset?")) {
+        assets.splice(i, 1);
+        save();
+    }
+}
+
+// Clear form
 function clearForm() {
     document.getElementById("assetId").value = "";
     document.getElementById("device").value = "";
@@ -92,7 +88,7 @@ function clearForm() {
     document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
 }
 
-// Search assets in table
+// Search asset
 function searchAsset() {
     const filter = document.getElementById("search").value.toLowerCase();
     const rows = document.querySelectorAll("#assetTable tbody tr");
@@ -102,7 +98,7 @@ function searchAsset() {
     });
 }
 
-// Export assets as CSV
+// Export CSV
 function exportCSV() {
     if (assets.length === 0) {
         alert("No assets to export.");
@@ -123,7 +119,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import assets from .txt file (comma-separated, optional header)
+// Import TXT
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -143,10 +139,9 @@ function importTxt() {
             return;
         }
 
-        // Skip header if present
+        // Skip header if detected
         let startIndex = 0;
-        const firstLine = lines[0].toLowerCase();
-        if (firstLine.includes("asset") && firstLine.includes("device")) {
+        if (lines[0].toLowerCase().includes("asset") && lines[0].toLowerCase().includes("device")) {
             startIndex = 1;
         }
 
@@ -162,19 +157,19 @@ function importTxt() {
                     user: user.trim()
                 };
 
-                // Optional: update existing asset if ID exists
+                // Update if exists, else add
                 const existingIndex = assets.findIndex(a => a.id === trimmedAsset.id);
                 if (existingIndex > -1) {
-                    assets[existingIndex] = trimmedAsset; // update
+                    assets[existingIndex] = trimmedAsset;
                 } else {
-                    assets.push(trimmedAsset); // add new
+                    assets.push(trimmedAsset);
                 }
                 count++;
             }
         }
 
         save();
-        fileInput.value = ""; // reset file input
+        fileInput.value = "";
         alert(`${count} assets imported successfully!`);
     };
 
@@ -185,5 +180,5 @@ function importTxt() {
     reader.readAsText(file);
 }
 
-// Initial display
+// Initialize table
 display();
