@@ -139,7 +139,6 @@ function importTxt() {
     reader.onload = function(e) {
         const lines = e.target.result.split(/\r?\n/).map(l => l.trim());
         let asset = { id: "", device: "", model: "", serial: "", user: "" };
-        let count = 0;
 
         lines.forEach(line => {
             if (!line || line.startsWith("Computer Information") || line.startsWith("=")) return;
@@ -153,20 +152,22 @@ function importTxt() {
             }
         });
 
-        // Only push the asset **after all lines are read**
-        if (asset.device && asset.serial) {
-            const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
-            if (existingIndex > -1) {
-                assets[existingIndex] = { ...asset };
-            } else {
-                assets.push({ ...asset });
-            }
-            count++;
+        if (!asset.device || !asset.serial) {
+            alert("Invalid file: missing Hostname or Serial Number.");
+            return;
+        }
+
+        // Add or update the single asset
+        const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
+        if (existingIndex > -1) {
+            assets[existingIndex] = { ...asset };
+        } else {
+            assets.push({ ...asset });
         }
 
         save();
         fileInput.value = "";
-        alert(`${count} asset(s) imported successfully! Highlighted rows are missing AssetID/User.`);
+        alert("Asset imported successfully! Highlighted row is missing AssetID/User.");
     };
 
     reader.onerror = function() {
@@ -178,3 +179,4 @@ function importTxt() {
 
 // Initial display
 display();
+
