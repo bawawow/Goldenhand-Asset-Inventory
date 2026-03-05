@@ -125,7 +125,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import PC info (.txt) with Model included
+// Import PC info (.txt) with proper Model import
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -145,29 +145,28 @@ function importTxt() {
             if (!line || line.startsWith("Computer Information") || line.startsWith("=")) return;
 
             if (line.toLowerCase().startsWith("hostname:")) {
-                asset.device = line.split(":")[1].trim();
+                asset.device = line.split(":")[1]?.trim();
             } else if (line.toLowerCase().startsWith("serial number:")) {
                 asset.serial = line.split(":")[1]?.trim();
             } else if (line.toLowerCase().startsWith("model:")) {
                 asset.model = line.split(":")[1]?.trim();
             }
-
-            // Push asset when we have Device + Serial
-            if (asset.device && asset.serial) {
-                const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
-                if (existingIndex > -1) {
-                    assets[existingIndex] = { ...asset }; // update existing
-                } else {
-                    assets.push({ ...asset }); // add new
-                }
-                count++;
-                asset = { id: "", device: "", model: "", serial: "", user: "" }; // reset for next PC
-            }
         });
+
+        // Only push the asset **after all lines are read**
+        if (asset.device && asset.serial) {
+            const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
+            if (existingIndex > -1) {
+                assets[existingIndex] = { ...asset };
+            } else {
+                assets.push({ ...asset });
+            }
+            count++;
+        }
 
         save();
         fileInput.value = "";
-        alert(`${count} assets imported successfully! Highlighted rows are missing AssetID/User.`);
+        alert(`${count} asset(s) imported successfully! Highlighted rows are missing AssetID/User.`);
     };
 
     reader.onerror = function() {
