@@ -20,7 +20,9 @@ h1, h3 {
     border: 1px solid #ccc;
     width: calc(20% - 12px);
     box-sizing: border-box;
-    /* Make Device Name / Hostname wider */
+}
+
+/* Make Device Name / Hostname wider */
 #device {
     width: calc(40% - 12px);
 }
@@ -179,6 +181,7 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
 
 
 
