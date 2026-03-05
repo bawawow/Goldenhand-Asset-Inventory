@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Asset Inventory</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>Asset Inventory System</h1>
+
+<div class="form">
+<input type="text" id="assetId" placeholder="Asset ID">
+<input type="text" id="device" placeholder="Device Name">
+<input type="text" id="brand" placeholder="Brand">
+<input type="text" id="serial" placeholder="Serial Number">
+<input type="text" id="user" placeholder="Assigned To">
+
+<button onclick="addAsset()">Add Asset</button>
+<button onclick="exportCSV()">Export CSV</button>
+</div>
+
+<input type="text" id="search" placeholder="Search..." onkeyup="searchAsset()">
+
+<table id="assetTable">
+<thead>
+<tr>
+<th>Asset ID</th>
+<th>Device</th>
+<th>Brand</th>
+<th>Serial</th>
+<th>User</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script src="script.js"></script>
+
+</body>
+</html>
