@@ -1,23 +1,51 @@
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
 let editIndex = -1;
+const PASSWORD = "P@55w0rd"; 
+let pendingAction = null; // stores which action requires password
 
-function save() {
-    localStorage.setItem("assets", JSON.stringify(assets));
-    display();
+function save() { localStorage.setItem("assets", JSON.stringify(assets)); display(); }
+
+// Show password modal for sensitive actions
+function requestPassword(action, index=null) {
+    pendingAction = { action, index };
+    document.getElementById("modalPassword").value = "";
+    document.getElementById("passwordModal").style.display = "block";
 }
 
-function addAsset() {
+function closeModal() { document.getElementById("passwordModal").style.display = "none"; }
+
+// Called when submitting modal password
+function submitPassword() {
+    const input = document.getElementById("modalPassword").value;
+    if(input !== PASSWORD) { alert("Incorrect password!"); return; }
+    closeModal();
+
+    // Execute pending action
+    if(pendingAction) {
+        const { action, index } = pendingAction;
+        pendingAction = null;
+        if(action === "add") addAssetConfirmed();
+        if(action === "delete") deleteAssetConfirmed(index);
+        if(action === "export") exportCSVConfirmed();
+    }
+}
+
+// ---------- Asset functions ----------
+
+// Wrapper for Add Asset (requires password)
+function addAsset() { requestPassword("add"); }
+function addAssetConfirmed() {
     const id = document.getElementById("assetId").value.trim();
     const device = document.getElementById("device").value.trim();
     const model = document.getElementById("model").value.trim();
     const serial = document.getElementById("serial").value.trim();
     const user = document.getElementById("user").value.trim();
 
-    if (!device || !serial) { alert("Device and Serial Number are required."); return; }
+    if(!device || !serial) { alert("Device and Serial Number are required."); return; }
 
     const asset = { id, device, model, serial, user };
 
-    if (editIndex > -1) {
+    if(editIndex > -1) {
         assets[editIndex] = asset;
         editIndex = -1;
         document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
@@ -27,12 +55,37 @@ function addAsset() {
     clearForm();
 }
 
+// Delete asset (requires password)
+function deleteAsset(i) { requestPassword("delete", i); }
+function deleteAssetConfirmed(i) {
+    if(confirm("Are you sure you want to delete this asset?")) {
+        assets.splice(i,1);
+        save();
+    }
+}
+
+// Export CSV (requires password)
+function exportCSV() { requestPassword("export"); }
+function exportCSVConfirmed() {
+    if(assets.length === 0){ alert("No assets to export."); return; }
+    let csv = "AssetID,Device,Model,Serial,User\n";
+    assets.forEach(a => csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`);
+    const blob = new Blob([csv], { type:"text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "assets.csv";
+    a.click();
+}
+
+// ---------- Other functions ----------
+
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
-    assets.forEach((a, i) => {
+    assets.forEach((a,i)=>{
         const row = document.createElement("tr");
-        if (!a.id || !a.user) row.classList.add("imported");
+        if(!a.id || !a.user) row.classList.add("imported");
         row.innerHTML = `
             <td>${a.id}</td>
             <td>${a.device}</td>
@@ -58,75 +111,51 @@ function editAsset(i) {
     document.querySelector("button[onclick='addAsset()']").innerText = "Update Asset";
 }
 
-function deleteAsset(i) {
-    if (confirm("Are you sure you want to delete this asset?")) {
-        assets.splice(i, 1);
-        save();
-    }
-}
-
 function clearForm() {
-    document.getElementById("assetId").value = "";
-    document.getElementById("device").value = "";
-    document.getElementById("model").value = "";
-    document.getElementById("serial").value = "";
-    document.getElementById("user").value = "";
-    editIndex = -1;
+    document.getElementById("assetId").value="";
+    document.getElementById("device").value="";
+    document.getElementById("model").value="";
+    document.getElementById("serial").value="";
+    document.getElementById("user").value="";
+    editIndex=-1;
     document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
 }
 
 function searchAsset() {
     const filter = document.getElementById("search").value.toLowerCase();
     const rows = document.querySelectorAll("#assetTable tbody tr");
-    rows.forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
-    });
+    rows.forEach(row=>row.style.display=row.innerText.toLowerCase().includes(filter)?"":"none");
 }
 
-function exportCSV() {
-    if (assets.length === 0) { alert("No assets to export."); return; }
-    let csv = "AssetID,Device,Model,Serial,User\n";
-    assets.forEach(a => { csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`; });
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "assets.csv";
-    a.click();
-}
-
+// Import PC info (.txt) - no password
 function importTxt() {
-    const fileInput = document.getElementById("importFile");
-    const file = fileInput.files[0];
-    if (!file) { alert("Please select a .txt file."); return; }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const lines = e.target.result.split(/\r?\n/).map(l => l.trim());
-        let asset = { id: "", device: "", model: "", serial: "", user: "" };
-
-        lines.forEach(line => {
-            if (!line || line.startsWith("Computer Information") || line.startsWith("=")) return;
-            if (line.toLowerCase().startsWith("hostname:")) asset.device = line.split(":")[1]?.trim();
-            else if (line.toLowerCase().startsWith("serial number:")) asset.serial = line.split(":")[1]?.trim();
-            else if (line.toLowerCase().startsWith("model:")) asset.model = line.split(":")[1]?.trim();
+    const fileInput=document.getElementById("importFile");
+    const file=fileInput.files[0];
+    if(!file){alert("Please select a .txt file."); return;}
+    const reader=new FileReader();
+    reader.onload=function(e){
+        const lines=e.target.result.split(/\r?\n/).map(l=>l.trim());
+        let asset={id:"",device:"",model:"",serial:"",user:""};
+        lines.forEach(line=>{
+            if(!line || line.startsWith("Computer Information") || line.startsWith("=")) return;
+            if(line.toLowerCase().startsWith("hostname:")) asset.device=line.split(":")[1]?.trim();
+            else if(line.toLowerCase().startsWith("serial number:")) asset.serial=line.split(":")[1]?.trim();
+            else if(line.toLowerCase().startsWith("model:")) asset.model=line.split(":")[1]?.trim();
         });
-
-        if (!asset.device || !asset.serial) { alert("Invalid file: missing Hostname or Serial Number."); return; }
-        assets.push({ ...asset });
+        if(!asset.device || !asset.serial){alert("Invalid file: missing Hostname or Serial Number."); return;}
+        assets.push({...asset});
         save();
-        fileInput.value = "";
+        fileInput.value="";
         alert("Asset imported successfully! Highlighted row is missing AssetID/User.");
     };
-
-    reader.onerror = function() { alert("Error reading file."); };
+    reader.onerror=function(){alert("Error reading file.");};
     reader.readAsText(file);
 }
 
-// Download updated PC info script
-document.getElementById("downloadScript").addEventListener("click", function(e) {
+// Download PC info script
+document.getElementById("downloadScript").addEventListener("click", function(e){
     e.preventDefault();
-    const batContent = `@echo off
+    const batContent=`@echo off
 REM ===========================
 REM Get PC Hostname, Serial Number, Model
 REM ===========================
@@ -164,11 +193,11 @@ echo.
 echo PC Info saved to %output_file%
 pause`;
 
-    const blob = new Blob([batContent], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "get_pc_info.bat";
+    const blob=new Blob([batContent],{type:"text/plain"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="get_pc_info.bat";
     a.click();
     URL.revokeObjectURL(url);
 });
