@@ -134,6 +134,13 @@ a#downloadScript:hover {
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+#loginOverlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .login-box {
