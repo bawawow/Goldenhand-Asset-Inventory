@@ -2,7 +2,7 @@
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
 let editIndex = -1;
 
-// Save to localStorage
+// Save to localStorage and refresh table
 function save() {
     localStorage.setItem("assets", JSON.stringify(assets));
     display();
@@ -35,7 +35,7 @@ function addAsset() {
     clearForm();
 }
 
-// Display table
+// Display assets in table
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
@@ -43,7 +43,7 @@ function display() {
     assets.forEach((a, i) => {
         const row = document.createElement("tr");
 
-        // Highlight if AssetID or User missing
+        // Highlight if AssetID or User is missing
         if (!a.id || !a.user) row.classList.add("imported");
 
         row.innerHTML = `
@@ -61,7 +61,7 @@ function display() {
     });
 }
 
-// Edit asset
+// Edit existing asset
 function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
@@ -125,7 +125,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import PC info (.txt) with Model
+// Import PC info (.txt) with Model included
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -152,16 +152,16 @@ function importTxt() {
                 asset.model = line.split(":")[1]?.trim();
             }
 
+            // Push asset when we have Device + Serial
             if (asset.device && asset.serial) {
-                // Check if device+serial already exists
                 const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
                 if (existingIndex > -1) {
-                    assets[existingIndex] = { ...asset };
+                    assets[existingIndex] = { ...asset }; // update existing
                 } else {
-                    assets.push({ ...asset });
+                    assets.push({ ...asset }); // add new
                 }
                 count++;
-                asset = { id: "", device: "", model: "", serial: "", user: "" };
+                asset = { id: "", device: "", model: "", serial: "", user: "" }; // reset for next PC
             }
         });
 
