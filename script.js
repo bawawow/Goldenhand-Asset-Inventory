@@ -1,75 +1,65 @@
 let assets = JSON.parse(localStorage.getItem("assets")) || [];
 let editIndex = -1;
-const PASSWORD = "P@55w0rd"; 
-let pendingAction = null; // stores which action requires password
+const PASSWORD = "P@55w0rd"; // password
 
-function save() { localStorage.setItem("assets", JSON.stringify(assets)); display(); }
-
-// Show password modal for sensitive actions
-function requestPassword(action, index=null) {
-    pendingAction = { action, index };
-    document.getElementById("modalPassword").value = "";
-    document.getElementById("passwordModal").style.display = "block";
+function save() {
+    localStorage.setItem("assets", JSON.stringify(assets));
+    display();
 }
 
-function closeModal() { document.getElementById("passwordModal").style.display = "none"; }
-
-// Called when submitting modal password
-function submitPassword() {
-    const input = document.getElementById("modalPassword").value;
-    if(input !== PASSWORD) { alert("Incorrect password!"); return; }
-    closeModal();
-
-    // Execute pending action
-    if(pendingAction) {
-        const { action, index } = pendingAction;
-        pendingAction = null;
-        if(action === "add") addAssetConfirmed();
-        if(action === "delete") deleteAssetConfirmed(index);
-        if(action === "export") exportCSVConfirmed();
+// Check password for sensitive actions
+function checkPassword() {
+    const input = prompt("Enter password:");
+    if(input !== PASSWORD){
+        alert("Incorrect password!");
+        return false;
     }
+    return true;
 }
 
-// ---------- Asset functions ----------
+// Add / Update Asset (password required)
+function addAsset() {
+    if(!checkPassword()) return;
 
-// Wrapper for Add Asset (requires password)
-function addAsset() { requestPassword("add"); }
-function addAssetConfirmed() {
     const id = document.getElementById("assetId").value.trim();
     const device = document.getElementById("device").value.trim();
     const model = document.getElementById("model").value.trim();
     const serial = document.getElementById("serial").value.trim();
     const user = document.getElementById("user").value.trim();
 
-    if(!device || !serial) { alert("Device and Serial Number are required."); return; }
+    if(!device || !serial) { alert("Device and Serial are required."); return; }
 
     const asset = { id, device, model, serial, user };
 
-    if(editIndex > -1) {
+    if(editIndex > -1){
         assets[editIndex] = asset;
         editIndex = -1;
         document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
-    } else { assets.push(asset); }
+    } else {
+        assets.push(asset);
+    }
 
     save();
     clearForm();
 }
 
-// Delete asset (requires password)
-function deleteAsset(i) { requestPassword("delete", i); }
-function deleteAssetConfirmed(i) {
-    if(confirm("Are you sure you want to delete this asset?")) {
+// Delete Asset (password required)
+function deleteAsset(i) {
+    if(!checkPassword()) return;
+    if(confirm("Are you sure you want to delete this asset?")){
         assets.splice(i,1);
         save();
     }
 }
 
-// Export CSV (requires password)
-function exportCSV() { requestPassword("export"); }
-function exportCSVConfirmed() {
+// Export CSV (password required)
+function exportCSV(){
+    if(!checkPassword()) return;
     if(assets.length === 0){ alert("No assets to export."); return; }
+
     let csv = "AssetID,Device,Model,Serial,User\n";
-    assets.forEach(a => csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`);
+    assets.forEach(a => { csv += `${a.id},${a.device},${a.model},${a.serial},${a.user}\n`; });
+
     const blob = new Blob([csv], { type:"text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -78,8 +68,7 @@ function exportCSVConfirmed() {
     a.click();
 }
 
-// ---------- Other functions ----------
-
+// Display assets
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
@@ -100,6 +89,7 @@ function display() {
     });
 }
 
+// Edit asset
 function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
@@ -111,6 +101,7 @@ function editAsset(i) {
     document.querySelector("button[onclick='addAsset()']").innerText = "Update Asset";
 }
 
+// Clear form
 function clearForm() {
     document.getElementById("assetId").value="";
     document.getElementById("device").value="";
@@ -121,10 +112,11 @@ function clearForm() {
     document.querySelector("button[onclick='addAsset()']").innerText = "Add Asset";
 }
 
+// Search assets
 function searchAsset() {
     const filter = document.getElementById("search").value.toLowerCase();
     const rows = document.querySelectorAll("#assetTable tbody tr");
-    rows.forEach(row=>row.style.display=row.innerText.toLowerCase().includes(filter)?"":"none");
+    rows.forEach(row => row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none");
 }
 
 // Import PC info (.txt) - no password
