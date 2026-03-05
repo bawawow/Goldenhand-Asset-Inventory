@@ -9,6 +9,7 @@
     <div class="container">
         <h1>Asset Inventory System</h1>
 
+        <!-- Form to add/edit assets -->
         <div class="form">
             <input type="text" id="assetId" placeholder="Asset ID">
             <input type="text" id="device" placeholder="Device Name / Hostname">
@@ -22,12 +23,15 @@
             </div>
         </div>
 
+        <!-- Import section -->
         <h3>Import Computer Info (.txt)</h3>
         <input type="file" id="importFile" accept=".txt">
         <button onclick="importTxt()">Import PC Info</button>
 
+        <!-- Search -->
         <input type="text" id="search" placeholder="Search assets..." onkeyup="searchAsset()">
 
+        <!-- Asset table -->
         <table id="assetTable">
             <thead>
                 <tr>
