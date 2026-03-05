@@ -157,13 +157,8 @@ function importTxt() {
             return;
         }
 
-        // Add or update the single asset
-        const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
-        if (existingIndex > -1) {
-            assets[existingIndex] = { ...asset };
-        } else {
-            assets.push({ ...asset });
-        }
+        // Always push a new asset (do NOT check for existing)
+        assets.push({ ...asset });
 
         save();
         fileInput.value = "";
@@ -179,4 +174,5 @@ function importTxt() {
 
 // Initial display
 display();
+
 
