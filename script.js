@@ -34,13 +34,17 @@ function addAsset() {
     clearForm();
 }
 
-// Display assets in table
+// Display table
 function display() {
     const table = document.querySelector("#assetTable tbody");
     table.innerHTML = "";
 
     assets.forEach((a, i) => {
         const row = document.createElement("tr");
+
+        // Add highlight if Brand/User missing
+        if (!a.brand || !a.user) row.classList.add("imported");
+
         row.innerHTML = `
             <td>${a.id}</td>
             <td>${a.device}</td>
@@ -56,7 +60,7 @@ function display() {
     });
 }
 
-// Edit asset (now allows editing Brand and User after import)
+// Edit asset
 function editAsset(i) {
     const a = assets[i];
     document.getElementById("assetId").value = a.id;
@@ -120,7 +124,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import PC info from .txt file (supports your format)
+// Import PC info from messy .txt file
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -149,12 +153,11 @@ function importTxt() {
                     if (asset.device && asset.serial) {
                         const existingIndex = assets.findIndex(a => a.id === asset.id);
                         if (existingIndex > -1) {
-                            assets[existingIndex] = { ...asset }; // update existing
+                            assets[existingIndex] = { ...asset };
                         } else {
-                            assets.push({ ...asset }); // add new
+                            assets.push({ ...asset });
                         }
                         count++;
-                        // Reset for next asset
                         asset = { id: "", device: "", brand: "", serial: "", user: "" };
                     }
                 }
@@ -163,7 +166,7 @@ function importTxt() {
 
         save();
         fileInput.value = "";
-        alert(`${count} assets imported successfully! You can now edit Brand and User.`);
+        alert(`${count} assets imported successfully! Highlighted rows are missing Brand/User.`);
     };
 
     reader.onerror = function() {
