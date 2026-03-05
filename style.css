@@ -80,7 +80,7 @@ td button:hover {
     background-color: #d32f2f;
 }
 
-/* Highlight imported assets missing Brand/User */
+/* Highlight imported assets missing AssetID/Brand/User */
 tr.imported {
     background-color: #fff3cd; /* light yellow */
 }
