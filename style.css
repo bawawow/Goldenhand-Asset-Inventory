@@ -1,86 +1,135 @@
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f9f9f9;
     margin: 0;
     padding: 20px;
-}
-
-.container {
-    max-width: 900px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
     color: #333;
 }
 
+h1, h3 {
+    text-align: center;
+    color: #2c3e50;
+}
+
+/* Form Section */
+.form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 900px;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
 .form input {
-    padding: 8px;
-    margin: 5px;
-    width: calc(20% - 10px); /* 5 fields now */
+    margin: 5px 10px 10px 0;
+    padding: 8px 12px;
+    border-radius: 4px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    width: calc(20% - 12px);
+    box-sizing: border-box;
 }
 
-.form .buttons {
-    margin-top: 10px;
-}
-
-button {
-    padding: 8px 15px;
-    margin: 5px;
+.form button {
+    margin: 5px 5px 0 0;
+    padding: 8px 16px;
     border: none;
-    border-radius: 5px;
-    background-color: #2a9df4;
-    color: white;
+    border-radius: 4px;
+    background-color: #3498db;
+    color: #fff;
     cursor: pointer;
     transition: background 0.3s;
 }
 
-button:hover {
-    background-color: #007acc;
+.form button:hover {
+    background-color: #2980b9;
 }
 
+/* Import section */
+.import-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Search box */
 #search {
-    width: 100%;
-    padding: 8px;
-    margin: 15px 0;
-    border-radius: 5px;
+    width: 95%;
+    max-width: 900px;
+    display: block;
+    margin: 0 auto 20px;
+    padding: 8px 12px;
+    border-radius: 4px;
     border: 1px solid #ccc;
 }
 
+/* Table Styles */
 table {
-    width: 100%;
+    width: 95%;
+    max-width: 900px;
+    margin: 0 auto;
     border-collapse: collapse;
-    margin-top: 10px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }
 
 th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 10px 12px;
     text-align: left;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 th {
-    background-color: #2a9df4;
-    color: white;
+    background-color: #3498db;
+    color: #fff;
 }
 
-td button {
-    background-color: #f44336;
+tr:nth-child(even) {
+    background-color: #f2f2f2;
 }
 
-td button:hover {
-    background-color: #d32f2f;
-}
-
-/* Highlight imported assets missing AssetID/User */
 tr.imported {
-    background-color: #fff3cd;
+    background-color: #fff3cd !important;
+}
+
+tr:hover {
+    background-color: #d6eaf8 !important;
+}
+
+button {
+    font-size: 0.9em;
+}
+
+/* Download link */
+.download-section {
+    text-align: center;
+    margin: 20px 0;
+}
+
+a#downloadScript {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #2ecc71;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+a#downloadScript:hover {
+    background: #27ae60;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form input {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    #search, table {
+        width: 100%;
+    }
 }
