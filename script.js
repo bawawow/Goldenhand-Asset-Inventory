@@ -15,8 +15,8 @@ function addAsset() {
     const serial = document.getElementById("serial").value.trim();
     const user = document.getElementById("user").value.trim();
 
-    if (!id || !device || !serial) {
-        alert("Asset ID, Device, and Serial are required.");
+    if (!device || !serial) {
+        alert("Device and Serial Number are required.");
         return;
     }
 
@@ -42,8 +42,8 @@ function display() {
     assets.forEach((a, i) => {
         const row = document.createElement("tr");
 
-        // Add highlight if Brand/User missing
-        if (!a.brand || !a.user) row.classList.add("imported");
+        // Highlight row if AssetID, Brand, or User is missing
+        if (!a.id || !a.brand || !a.user) row.classList.add("imported");
 
         row.innerHTML = `
             <td>${a.id}</td>
@@ -124,7 +124,7 @@ function exportCSV() {
     a.click();
 }
 
-// Import PC info from messy .txt file
+// Import PC info from .txt file (Asset ID left blank)
 function importTxt() {
     const fileInput = document.getElementById("importFile");
     const file = fileInput.files[0];
@@ -145,17 +145,17 @@ function importTxt() {
 
             if (line.toLowerCase().startsWith("hostname:")) {
                 asset.device = line.split(":")[1].trim();
-                asset.id = asset.device;
             } else if (line.toLowerCase().startsWith("serial number:")) {
                 const serial = line.split(":")[1]?.trim();
                 if (serial) {
                     asset.serial = serial;
                     if (asset.device && asset.serial) {
-                        const existingIndex = assets.findIndex(a => a.id === asset.id);
+                        // Check if device+serial already exists
+                        const existingIndex = assets.findIndex(a => a.device === asset.device && a.serial === asset.serial);
                         if (existingIndex > -1) {
-                            assets[existingIndex] = { ...asset };
+                            assets[existingIndex] = { ...asset }; // update
                         } else {
-                            assets.push({ ...asset });
+                            assets.push({ ...asset }); // add new
                         }
                         count++;
                         asset = { id: "", device: "", brand: "", serial: "", user: "" };
@@ -166,7 +166,7 @@ function importTxt() {
 
         save();
         fileInput.value = "";
-        alert(`${count} assets imported successfully! Highlighted rows are missing Brand/User.`);
+        alert(`${count} assets imported successfully! Highlighted rows are missing AssetID/Brand/User.`);
     };
 
     reader.onerror = function() {
