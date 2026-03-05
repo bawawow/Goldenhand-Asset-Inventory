@@ -20,6 +20,16 @@
 <button onclick="exportCSV()">Export CSV</button>
 </div>
 
+<br>
+
+<!-- NEW FEATURE: Import PC Info -->
+<h3>Import Computer Info (.txt)</h3>
+
+<input type="file" id="importFile" accept=".txt">
+<button onclick="importTxt()">Import PC Info</button>
+
+<br><br>
+
 <input type="text" id="search" placeholder="Search..." onkeyup="searchAsset()">
 
 <table id="assetTable">
