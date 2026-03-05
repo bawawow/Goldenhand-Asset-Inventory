@@ -23,7 +23,7 @@ h1, h3 {
 }
 
 .form input:nth-child(2) {
-    width: calc(40% - 12px);
+    width: calc(24% - 12px);
 }
     
 .form button {
@@ -180,6 +180,7 @@ a#downloadScript:hover {
         width: 100%;
     }
 }
+
 
 
 
